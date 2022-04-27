@@ -45,7 +45,7 @@ import { Request, Response } from "express"
 import { User } from "./entity/User"
 import { myDataSource } from "./app-data-source.ts"
 // estabelecendo a conexao com banco de dados
-myDataSource.initialize()
+myDataSource.initialize()  // iniciado aqui
     .then(() => {console.log("Data Source has been initialized!")})
     .catch((err) => {console.error("Error during Data Source initialization:", err)})
 // create and setup express app
@@ -66,8 +66,8 @@ app.listen(3000)
 ### foi necessário iniciar novamente o DataSource no repositório, 
 ### do contrário não funciona.
 
-#### EXEMPLO 1 --- O arquivo `app-data-source.ts` não muda nada, sua inicialização deve ser 
-#### colocada no construtor da classe de repositorio personalizada
+#### EXEMPLO 1 --- No arquivo `app-data-source.ts` não muda nada, sua inicialização deve ser 
+#### colocada no construtor da classe de repositorio personalizada e removida do arquivo `src/app.ts`
 
 
 ##### O arquivo `app-data-source.ts`
@@ -98,6 +98,7 @@ import ICreateDoctypesDTO from "@modules/doctypes/dtos/ICreateDoctypesDTO";
 class DoctypesRepository implements IDoctypesRepository {
     private ormRepository: Repository<Doctype>;
     constructor() {
+        //foi iniciado aqui novamente além do arquivo `src/app.ts`
         myDataSource.initialize() // estabelecendo a conexao com banco de dados
         this.ormRepository = myDataSource.getRepository(Doctype)
     }
@@ -109,8 +110,8 @@ class DoctypesRepository implements IDoctypesRepository {
 }
 export { DoctypesRepository };
 ```
-#### EXEMPLO 2  --mudar o `app-data-source.ts` incluindo a inicilização nele
-#### e recomer a inicilização do contrutor do repositório
+#### EXEMPLO 2  -- mudar o `app-data-source.ts` incluindo a inicilização nele
+#### e remover a inicilização do contrutor do repositório e do arquivo `src/app.ts`
 
 ##### O arquivo `app-data-source.ts`
 ```JavaScript
@@ -126,7 +127,7 @@ const myDataSource = new DataSource({
     logging: true,
     synchronize: true,
 })
-
+//foi iniciado aqui
 myDataSource.initialize()
     .then(() => {console.log("Data Source has been initialized!")})
     .catch((err) => {console.error("Error during Data Source initialization:", err)})
@@ -145,6 +146,7 @@ import ICreateDoctypesDTO from "@modules/doctypes/dtos/ICreateDoctypesDTO";
 class DoctypesRepository implements IDoctypesRepository {
     private ormRepository: Repository<Doctype>;
     constructor() {
+        //foi removido a inicialização do construtor e também do arquivo `src/app.ts`
         this.ormRepository = myDataSource.getRepository(Doctype)
     }
     async create({ type, localization, expiration, user_id }: ICreateDoctypesDTO): Promise<Doctype> {
